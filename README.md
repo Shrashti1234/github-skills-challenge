@@ -57,128 +57,332 @@ records for `payment-service`.
 
 &copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
 
-## Task 2: Logs and Metrics Analysis
+# AIOps Assessment Report
 
-### Operational Data
+## Task 1: Set Up and Understand the Environment
 
-The operational data is stored in `data/service_data.json` and contains
-timestamped observations for the `payment-service`.
+### Description
 
-### Metrics
+The repository was opened in GitHub Codespaces and the project structure was reviewed to understand the purpose of each component.
 
-- `response_time_ms`: service response time in milliseconds
-- `cpu_percent`: CPU utilization percentage
-- `memory_percent`: memory utilization percentage
+### Components Identified
 
-### Log Information
+| Component | File |
+|------------|---------|
+| Operational Data | `data/service_data.json` |
+| Anomaly Detection | `src/anomaly_detector.py` |
+| Event Producer | `src/event_producer.py` |
+| Event Topic | `src/event_topic.py` |
+| Event Consumer | `src/event_consumer.py` |
+| Final AIOps Processing | `src/aiops_pipeline.py` |
 
-- `log_level`: severity/category of the log entry
-- `message`: description of the service event
+### Service Being Monitored
 
-### Timestamp Analysis
+The project monitors a payment-service application using operational metrics and logs.
 
-The records are timestamped at one-minute intervals from 10:00 through
-10:09 on 2026-09-20.
+### Operational Problem
+
+The operations team needs to identify abnormal behaviour and process detected anomalies automatically.
+
+### Purpose of AIOps
+
+The purpose of this assessment is to analyse operational data, detect anomalies, generate events, and process them through an event-driven workflow.
+
+---
+
+## Task 2: Analyse Logs and Metrics
+
+### Metrics Identified
+
+- response_time_ms
+- cpu_percent
+- memory_percent
+
+### Log Information Identified
+
+- log_level
+- message
+
+### Timestamp Usage
+
+The timestamp field records when each observation occurred and helps identify when abnormal behaviour happened.
 
 ### Normal Behaviour
 
-The observations from 10:00 through 10:04 and 10:07 through 10:09 show
-relatively stable metrics and successful `INFO` messages indicating that
-payment requests were processed successfully.
+Most records showed:
+
+- Response time between 120–150 ms
+- CPU usage between 42–50%
+- Memory usage between 51–57%
+- INFO log messages
 
 ### Unusual Behaviour
 
-At 10:05, the response time increased to 610 ms and the log level was
-`ERROR` with a payment service timeout message.
+#### Record at 10:05:00
 
-At 10:06, the response time increased to 640 ms, CPU utilization reached
-94%, memory utilization reached 91%, and the log reported a database
-connection timeout.
+- Response time: 610 ms
+- ERROR log: Payment service timeout
 
-These observations represent the unusual behaviour in the supplied
-operational data.
+#### Record at 10:06:00
 
-## Task 3: Anomaly Detection
+- Response time: 640 ms
+- CPU usage: 94%
+- Memory usage: 91%
+- ERROR log: Database connection timeout
 
-The provided `AnomalyDetector` was used to analyse the operational data
-from `data/service_data.json`.
+### Observation
 
-### Detection Result
+Out of 10 records:
 
-The pipeline processed 10 records and detected 2 anomalies.
+- 8 records were normal
+- 2 records showed anomalous behaviour
+
+---
+
+## Task 3: Identify Anomalies
+
+### Description
+
+The anomaly detector was executed using the provided operational data.
+
+### Result
+
+The detector processed all 10 records and identified 2 anomalies.
 
 ### Detected Anomalies
 
-#### 10:05
+#### Anomaly 1
 
-- Response time: 610 ms
-- CPU utilization: 75%
-- Memory utilization: 70%
-- Log level: ERROR
-- Message: Payment service timeout
-- Reasons: High response time, Error log detected
+Timestamp: 2026-09-20T10:05:00
 
-#### 10:06
+Reason:
+- High response time
 
-- Response time: 640 ms
-- CPU utilization: 94%
-- Memory utilization: 91%
-- Log level: ERROR
-- Message: Database connection timeout
-- Reasons: High response time, High CPU utilization,
-  High memory utilization, Error log detected
+Log:
+- Payment service timeout
 
-### Normal Observations
+#### Anomaly 2
 
-The remaining records were not identified as anomalies by the
-configured detection rules.
+Timestamp: 2026-09-20T10:06:00
 
-### Missed Anomalies
+Reasons:
+- High response time
+- High CPU utilization
+- High memory utilization
 
-No expected anomaly was missed based on the supplied operational data
-and the configured detection rules.
+Log:
+- Database connection timeout
 
-### Incorrectly Flagged Normal Events
+### Findings
 
-No normal event was incorrectly flagged during the execution.
+The detector successfully distinguished normal records from abnormal records and provided reasons for each anomaly.
 
-### Limitation / Possible Improvement
+### Limitation
 
-The detector uses fixed thresholds for response time, CPU utilization,
-and memory utilization. An adaptive baseline based on historical
-service behaviour could improve the detection approach.
-## Task 4: AIOps Event Flow
+The current implementation relies on fixed threshold values and may not detect more complex anomaly patterns.
 
-The anomaly detection component generates an event when abnormal
-behaviour is identified.
+---
 
-The event is passed to the EventProducer, which publishes it to the
-shared in-memory anomaly-events topic.
+## Task 4: Verify the AIOps Event Flow
 
-The EventConsumer reads the events from the same topic and passes the
-consumed events to the downstream AIOps processing.
+### Workflow
 
-The verified flow is:
+Operational Data → Anomaly Detection → Event Generation → Producer → Topic → Consumer → AIOps Output
 
-Operational Data → Anomaly Detection → Event → Producer → Topic →
-Consumer → AIOps Output
+### Component Roles
 
-The final execution confirmed that the detected anomaly events were
-published and subsequently consumed by the event-processing pipeline.
-## Task 5: Troubleshooting and Corrections
+#### Producer
+Publishes anomaly events to the topic.
 
-### Issues Identified and Corrected
+#### Topic
+Stores anomaly events in memory.
 
-| Component | Problem | Cause | Correction | Verification |
-|---|---|---|---|---|
-| Anomaly Detector | Concerning error logs were not handled by the intended log rule | The detector checked the wrong log level | Corrected the log-level condition to match the supplied operational data | Pipeline detected the two anomalous records |
-| Event Producer/Topic | Producer and consumer were connected to different topic objects | Separate in-memory `EventTopic` instances were created | Producer and consumer were connected to the same anomaly-event topic | Events were successfully consumed |
-### Troubleshooting Verification
+#### Consumer
+Reads anomaly events from the topic.
 
-After applying the corrections, the workflow was executed again.
+#### Event
+Represents a detected anomaly.
 
-The operational dataset was processed successfully, anomalous records
-were detected, anomaly events were published to the shared in-memory
-topic, and the consumer successfully retrieved the generated events.
+### Verification
 
-The provided test suite was also executed successfully.
+The workflow was executed and verified to ensure anomaly events moved successfully through the producer-topic-consumer pipeline.
+
+### Result
+
+Detected anomaly events were successfully generated, published, stored, consumed, and processed.
+
+---
+
+## Task 5: Investigate and Correct the Workflow
+
+### Issue Identified
+
+The producer and consumer were connected to different topic instances.
+
+### Cause
+
+Events were being published to one topic while the consumer was listening to another topic.
+
+### Initial Result
+
+```text
+Records processed: 10
+Anomalies detected: 2
+Events consumed: 0
+```
+
+### Correction Applied
+
+Both the producer and consumer were connected to the same shared topic instance.
+
+### Verification
+
+The workflow was executed again after applying the correction.
+
+### Result After Fix
+
+```text
+Records processed: 10
+Anomalies detected: 2
+Events consumed: 2
+```
+
+The issue was successfully resolved.
+
+---
+
+## Task 6: Execute the End-to-End Pipeline
+
+### Workflow Executed
+
+Operational Data → Anomaly Detection → Event Generation → Producer → Topic → Consumer → AIOps Output
+
+### Execution Result
+
+- Records Processed: 10
+- Anomalies Detected: 2
+- Events Consumed: 2
+
+### Outcome
+
+Operational data was processed successfully.
+
+Detected anomalies were converted into events, published to the topic, consumed successfully, and processed by the final AIOps component.
+
+---
+
+## Task 7: Documentation
+
+### Documentation Added
+
+The README was updated to include:
+
+- AIOps scenario
+- Operational data description
+- Metrics and log analysis
+- Anomaly detection findings
+- Event processing flow
+- Issues identified and corrected
+- Final execution results
+- Limitation
+- Reproduction steps
+
+### Reproduction Steps
+
+1. Clone the repository.
+2. Open the project in GitHub Codespaces or VS Code.
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Run the AIOps pipeline:
+
+```bash
+python src/aiops_pipeline.py
+```
+
+5. Run validation tests:
+
+```bash
+pytest -v
+```
+
+---
+
+## Task 8: Validation
+
+### Validation Method
+
+The provided test suite was executed.
+
+### Command
+
+```bash
+pytest -v
+```
+
+### Result
+
+```text
+8 passed
+```
+
+### Verification
+
+The successful test execution confirmed that:
+
+- Operational data can be processed
+- Anomaly detection works correctly
+- Events are generated successfully
+- Events move through the pipeline
+- Consumers receive events
+- The final workflow executes successfully
+
+---
+
+## Task 9: Commit, Push and Submission
+
+### Git Operations Performed
+
+- Reviewed changes
+- Committed changes
+- Pushed changes to GitHub
+
+### Pull Request
+
+A pull request was created from the forked repository to the original exercise repository.
+
+### Pull Request Summary
+
+#### What the workflow detects
+
+- High response time
+- High CPU utilization
+- High memory utilization
+
+#### Validation Method
+
+- Pipeline execution
+- Automated test execution
+
+#### Final Result
+
+- Records processed: 10
+- Anomalies detected: 2
+- Events consumed: 2
+
+#### Issue Corrected
+
+Producer and consumer were connected to different topic instances. Both components were connected to a shared topic to resolve the issue.
+
+#### Limitation
+
+The anomaly detector uses fixed threshold values and could be improved with more advanced anomaly-detection techniques.
+
+---
+
+# Final Outcome
+
+The AIOps workflow successfully processed operational data, detected anomalies, generated events, passed them through the producer-topic-consumer pipeline, and produced the expected final output.
