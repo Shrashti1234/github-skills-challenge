@@ -165,3 +165,20 @@ Consumer → AIOps Output
 
 The final execution confirmed that the detected anomaly events were
 published and subsequently consumed by the event-processing pipeline.
+## Task 5: Troubleshooting and Corrections
+
+### Issues Identified and Corrected
+
+| Component | Problem | Cause | Correction | Verification |
+|---|---|---|---|---|
+| Anomaly Detector | Concerning error logs were not handled by the intended log rule | The detector checked the wrong log level | Corrected the log-level condition to match the supplied operational data | Pipeline detected the two anomalous records |
+| Event Producer/Topic | Producer and consumer were connected to different topic objects | Separate in-memory `EventTopic` instances were created | Producer and consumer were connected to the same anomaly-event topic | Events were successfully consumed |
+### Troubleshooting Verification
+
+After applying the corrections, the workflow was executed again.
+
+The operational dataset was processed successfully, anomalous records
+were detected, anomaly events were published to the shared in-memory
+topic, and the consumer successfully retrieved the generated events.
+
+The provided test suite was also executed successfully.
