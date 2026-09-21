@@ -98,3 +98,52 @@ connection timeout.
 These observations represent the unusual behaviour in the supplied
 operational data.
 
+## Task 3: Anomaly Detection
+
+The provided `AnomalyDetector` was used to analyse the operational data
+from `data/service_data.json`.
+
+### Detection Result
+
+The pipeline processed 10 records and detected 2 anomalies.
+
+### Detected Anomalies
+
+#### 10:05
+
+- Response time: 610 ms
+- CPU utilization: 75%
+- Memory utilization: 70%
+- Log level: ERROR
+- Message: Payment service timeout
+- Reasons: High response time, Error log detected
+
+#### 10:06
+
+- Response time: 640 ms
+- CPU utilization: 94%
+- Memory utilization: 91%
+- Log level: ERROR
+- Message: Database connection timeout
+- Reasons: High response time, High CPU utilization,
+  High memory utilization, Error log detected
+
+### Normal Observations
+
+The remaining records were not identified as anomalies by the
+configured detection rules.
+
+### Missed Anomalies
+
+No expected anomaly was missed based on the supplied operational data
+and the configured detection rules.
+
+### Incorrectly Flagged Normal Events
+
+No normal event was incorrectly flagged during the execution.
+
+### Limitation / Possible Improvement
+
+The detector uses fixed thresholds for response time, CPU utilization,
+and memory utilization. An adaptive baseline based on historical
+service behaviour could improve the detection approach.
