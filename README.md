@@ -57,3 +57,44 @@ records for `payment-service`.
 
 &copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
 
+## Task 2: Logs and Metrics Analysis
+
+### Operational Data
+
+The operational data is stored in `data/service_data.json` and contains
+timestamped observations for the `payment-service`.
+
+### Metrics
+
+- `response_time_ms`: service response time in milliseconds
+- `cpu_percent`: CPU utilization percentage
+- `memory_percent`: memory utilization percentage
+
+### Log Information
+
+- `log_level`: severity/category of the log entry
+- `message`: description of the service event
+
+### Timestamp Analysis
+
+The records are timestamped at one-minute intervals from 10:00 through
+10:09 on 2026-09-20.
+
+### Normal Behaviour
+
+The observations from 10:00 through 10:04 and 10:07 through 10:09 show
+relatively stable metrics and successful `INFO` messages indicating that
+payment requests were processed successfully.
+
+### Unusual Behaviour
+
+At 10:05, the response time increased to 610 ms and the log level was
+`ERROR` with a payment service timeout message.
+
+At 10:06, the response time increased to 640 ms, CPU utilization reached
+94%, memory utilization reached 91%, and the log reported a database
+connection timeout.
+
+These observations represent the unusual behaviour in the supplied
+operational data.
+
