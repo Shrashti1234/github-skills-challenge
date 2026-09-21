@@ -147,3 +147,21 @@ No normal event was incorrectly flagged during the execution.
 The detector uses fixed thresholds for response time, CPU utilization,
 and memory utilization. An adaptive baseline based on historical
 service behaviour could improve the detection approach.
+## Task 4: AIOps Event Flow
+
+The anomaly detection component generates an event when abnormal
+behaviour is identified.
+
+The event is passed to the EventProducer, which publishes it to the
+shared in-memory anomaly-events topic.
+
+The EventConsumer reads the events from the same topic and passes the
+consumed events to the downstream AIOps processing.
+
+The verified flow is:
+
+Operational Data → Anomaly Detection → Event → Producer → Topic →
+Consumer → AIOps Output
+
+The final execution confirmed that the detected anomaly events were
+published and subsequently consumed by the event-processing pipeline.
